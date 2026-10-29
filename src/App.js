@@ -70,9 +70,7 @@ function useFlash() {
   return [msg, flash];
 }
 
-// ---------------------------------------------------------------------------
 // SMALL SHARED COMPONENTS
-// ---------------------------------------------------------------------------
 function Field({ label, required = true, ...props }) {
   return (
     <div className="form-group">
@@ -664,6 +662,28 @@ function EditUserModal({ user, users, onSave, onClose }) {
 // APP (state lives here, like the globals in the original)
 export default function App() {
   const [books, setBooks] = useState(() => load(KEYS.books, []));
+  
+useEffect(() => {
+  fetch("http://localhost:5000/books")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Failed to load books");
+      }
+      return response.json();
+    })
+    .then((data) => {
+      setBooks(
+        data.map((book) => ({
+          ...book,
+          borrowed: book.borrowed ?? 0,
+        }))
+      );
+    })
+    .catch((error) => {
+      console.error("Error loading books:", error);
+    });
+}, []);
+
   const [users, setUsers] = useState(() => {
     const saved = load(KEYS.users, []);
     if (saved.length > 0) return saved;
